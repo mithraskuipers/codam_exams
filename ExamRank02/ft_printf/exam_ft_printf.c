@@ -6,7 +6,7 @@
 /*   By: mikuiper <mikuiper@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/03/03 22:43:09 by mikuiper      #+#    #+#                 */
-/*   Updated: 2022/03/03 23:09:53 by mikuiper      ########   odam.nl         */
+/*   Updated: 2022/04/08 20:09:21 by mikuiper      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,66 +34,43 @@ int	ft_putnbr_flex(unsigned int n, int base)
 	return (nchars);
 }
 
-int	is_neg(int n, int base)
-{
-	int nchars;
-	nchars = 0;
 
-	if (n < 0)
+
+int	mk_putnbr_base(int nbr, int base)
+{
+	int			result;
+	char		print;
+	char		*set;
+	static int	nchars;
+
+	set = "0123456789ABCDEF";
+	if (nbr < 0)
 	{
-		n = n * -1;
-		nchars = nchars + write(1, "-", 1);
+		write(1, "-", 1);
+		print = set[(nbr % base) * -1];
+		result = (nbr / base) * -1;
+		nchars = nchars + 1;
+		
 	}
-	nchars = nchars + ft_putnbr_flex(n, base);
-	return (nchars);
+	else
+	{
+		result = nbr / base;
+		print = set[nbr % base];
+	}
+	if (result != 0)
+		mk_putnbr_base(result, base);
+	nchars = nchars + write(1, &print, 1);
+	return(nchars);
 }
 
-int	ft_putstr(char	*s)
-{
-	int	i;
-	i = 0;
 
-	while (s[i] != '\0')
-	{
-		write(1, &s[i], 1);
-		i++;
-	}
-	return (i);
-}
 
-int	ft_printf(const char *format, ...)
-{
-	va_list	ap;
-	int i;
-	i = 0;
 
-	int nchars;
-	nchars = 0;
-
-	va_start(ap, format);
-	while (format[i] != '\0')
-	{
-		if (format[i] == '%')
-		{
-			i++;
-			if (format[i] == 's')
-				nchars = nchars + ft_putstr(va_arg(ap, char *));
-			if (format[i] == 'd')
-				nchars = nchars + is_neg(va_arg(ap, int), 10);
-			if (format[i] == 'x')
-				nchars = nchars + ft_putnbr_flex(va_arg(ap, unsigned int), 16);
-		}
-		else
-			nchars = nchars + write(1, &format[i], 1);
-		i++;
-	}
-	va_end(ap);
-	return (nchars);
-}
-
+#include <stdio.h>
 int	main(void)
 {
-	int a;
-	a = 11;
-	ft_printf("hoi %x", a);
+	int nchars;	
+	nchars = mk_putnbr_base(-3, 10);
+	printf("\n");
+	printf("nchars = [%d]\n", nchars);
 }
