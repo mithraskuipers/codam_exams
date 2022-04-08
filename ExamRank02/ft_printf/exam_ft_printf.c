@@ -6,35 +6,25 @@
 /*   By: mikuiper <mikuiper@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/03/03 22:43:09 by mikuiper      #+#    #+#                 */
-/*   Updated: 2022/04/08 20:09:21 by mikuiper      ########   odam.nl         */
+/*   Updated: 2022/04/08 20:15:20 by mikuiper      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include <stdarg.h>
 
-int	ft_putnbr_flex(unsigned int n, int base)
+int	ft_putstr(char	*s)
 {
-	char	*hex;
-	char	*dec;
-	int		i;
-	int		nchars;
+	int	i;
+	i = 0;
 
-	hex = "0123456789abcdef";
-	dec = "0123456789";
-	nchars = 0;
-
-	if (n / base != 0)
-		nchars = nchars + ft_putnbr_flex(n / base, base);
-	i = n % base;
-	if (base == 16)
-		nchars = nchars + write(1, &hex[i], 1);
-	if (base == 10)
-		nchars = nchars + write(1, &dec[i], 1);
-	return (nchars);
+	while (s[i] != '\0')
+	{
+		write(1, &s[i], 1);
+		i++;
+	}
+	return (i);
 }
-
-
 
 int	mk_putnbr_base(int nbr, int base)
 {
@@ -63,14 +53,41 @@ int	mk_putnbr_base(int nbr, int base)
 	return(nchars);
 }
 
+int	ft_printf(const char *format, ...)
+{
+	va_list	ap;
+	int i;
+	i = 0;
 
+	int nchars;
+	nchars = 0;
 
+	va_start(ap, format);
+	while (format[i] != '\0')
+	{
+		if (format[i] == '%')
+		{
+			i++;
+			if (format[i] == 's')
+				nchars = nchars + ft_putstr(va_arg(ap, char *));
+			if (format[i] == 'd')
+				nchars = nchars + mk_putnbr_base(va_arg(ap, int), 10);
+			if (format[i] == 'x')
+				nchars = nchars + mk_putnbr_base(va_arg(ap, unsigned int), 16);
+		}
+		else
+			nchars = nchars + write(1, &format[i], 1);
+		i++;
+	}
+	va_end(ap);
+	return (nchars);
+}
 
 #include <stdio.h>
 int	main(void)
 {
 	int nchars;	
-	nchars = mk_putnbr_base(-3, 10);
-	printf("\n");
-	printf("nchars = [%d]\n", nchars);
+	nchars = ft_printf("%d", -123);
+	ft_printf("\n");
+	ft_printf("Hoeveelheid printed characters is: %d\n", nchars);
 }
